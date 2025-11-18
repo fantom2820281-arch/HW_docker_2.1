@@ -1,0 +1,49 @@
+services:
+  gerasin-ds-netology-prometheus:
+    image: prom/prometheus:latest
+    container_name: gerasin-ds-netology-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - gerasin-ds-my-netology-hw
+    depends_on:
+      - gerasin-ds-netology-pushgateway
+    restart: unless-stopped
+
+  gerasin-ds-netology-pushgateway:
+    image: prom/pushgateway:latest
+    container_name: gerasin-ds-netology-pushgateway
+    ports:
+      - "9091:9091"
+    networks:
+      - gerasin-ds-my-netology-hw
+    restart: always
+
+  gerasin-ds-netology-grafana:
+    image: grafana/grafana:latest
+    container_name: gerasin-ds-netology-grafana
+    ports:
+      - "80:3000"
+    volumes:
+      - ./grafana/custom.ini:/etc/grafana/custom.ini
+      - grafana_data:/var/lib/grafana
+    networks:
+      - gerasin-ds-my-netology-hw
+    depends_on:
+      - gerasin-ds-netology-prometheus
+    restart: unless-stopped
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+
+networks:
+  gerasin-ds-my-netology-hw:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16   
+        
